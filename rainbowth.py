@@ -47,8 +47,6 @@ class ViewInfo:
                              scope=key, flags=sublime.DRAW_NO_OUTLINE)
 
 class Rainbowth(sublime_plugin.EventListener):
-    lispy_languages = ['lisp', 'scheme', 'clojure', 'clojurescript', 'hylang']
-
     @staticmethod
     def cache_file_path():
         result = os.path.join(sublime.cache_path(), 'Rainbowth', 'Rainbowth.cache')
@@ -180,15 +178,11 @@ class Rainbowth(sublime_plugin.EventListener):
         return False
 
     def on_activated_async(self, view):
-        view.settings().set('rainbowth.lispy', self.is_written_in(view, self.lispy_languages))
-        if view.settings().get('rainbowth.lispy'):
-            colors = self.update_color_scheme(view)
-            view.settings().set('rainbowth.colors', colors)
-            self.on_modified_async(view)
+        colors = self.update_color_scheme(view)
+        view.settings().set('rainbowth.colors', colors)
+        self.on_modified_async(view)
 
     def on_modified_async(self, view):
-        if not view.settings().get('rainbowth.lispy'):
-            return
         colors = view.settings().get('rainbowth.colors')
 
         level = -1
@@ -205,14 +199,9 @@ class Rainbowth(sublime_plugin.EventListener):
         self.on_selection_modified(view)
 
     def on_close(self, view):
-        if not view.settings().get('rainbowth.lispy'):
-            return
-
         del self.view_infos[view.id()]
 
     def on_selection_modified(self, view):
-        if not view.settings().get('rainbowth.lispy'):
-            return
         colors = view.settings().get('rainbowth.colors')
 
         if not view.id() in self.view_infos:
